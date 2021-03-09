@@ -1,0 +1,24 @@
+# підтягуємо офіційний базовий образ
+FROM python:3.8.1-alpine
+
+# встановлюємо робочу директорію
+WORKDIR /usr/src/app
+
+# встановлюємо змінні середовища
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# копіюємо файл з вимогами
+COPY ./requirements.txt /usr/src/app/requirements.txt
+
+# встановлюємо залежності
+RUN set -eux \
+    && apk add --no-cache --virtual .build-deps build-base \
+        libressl-dev libffi-dev gcc musl-dev python3-dev \
+        postgresql-dev \
+    && pip install --upgrade pip setuptools wheel \
+    && pip install -r /usr/src/app/requirements.txt \
+    && rm -rf /root/.cache/pip
+
+# копіюємо проєкт
+COPY . /usr/src/app/
